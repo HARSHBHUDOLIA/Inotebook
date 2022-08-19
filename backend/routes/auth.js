@@ -19,9 +19,10 @@ router.post(
    ],
    async (req, res) => {
       //Error Handling
+      let success=false;
       const errors = validationResult(req)
       if (!errors.isEmpty()) {
-         return res.status(400).json({ errors: errors.array() })
+         return res.status(400).json({success, errors: errors.array() })
       }
       //
       try {
@@ -37,11 +38,12 @@ router.post(
                id: user.id,
             },
          }
-         const authToken = jwt.sign(data, JWT_SECRET)
+         const authtoken = jwt.sign(data, JWT_SECRET)
          // console.log(authToken);
-         res.json({ authToken })
+         success=true
+         res.json({success ,authtoken })
       } catch (err) {
-         res.status(400).json(err.message)
+         return res.status(400).json(err.message)
          console.error(err)
       }
       //   .then(user => res.json(user))
@@ -56,30 +58,34 @@ router.post("/login", [
   body("password","Password Cannot Be Blank").exists()
 ], async (req, res) => {
    //Error Handling
+   let success=false;
    const errors = validationResult(req)
    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      return res.status(400).json({success, errors: errors.array() })
    }
    const {email,password}=req.body;
    try {
      let user=await User.findOne({email});
      if(!user){
-      res.status(400).json({error:"Please Enter Correct Credentials"})
+     return res.status(400).json({error:"Please Enter Correct Credentials"})
      }
      const passwordCompare=await bcrypt.compare(password,user.password);
      if(!passwordCompare){
-      res.status(400).json({error:"Please Enter Correct Credentials"})
+      success=false
+     return res.status(400).json({success,error:"Please Enter Correct Credentials"})
+     
      }
      const data = {
       user: {
          id: user.id,
       },
        }
-       const authToken = jwt.sign(data, JWT_SECRET)
+       const authtoken = jwt.sign(data, JWT_SECRET)
       
-       res.json({ authToken })
+      success=true;
+      return res.json({success ,authtoken })
    } catch (error) {
-    res.status(400).json("Some Internal Error Occured")
+   return  res.status(400).json("Some Internal Error Occured")
          console.error(error)
    }
 })
@@ -95,9 +101,9 @@ router.post("/getuser",fetchuser,
    try {
     let userId=req.user.id;
     let user=User.findById(userId).select("-password")
-    res.send(user)
+   return res.send(user)
   } catch (error) {
-    res.status(400).json("Some Internal Error Occured")
+   return res.status(400).json("Some Internal Error Occured")
     console.error(error)
   }
 })
