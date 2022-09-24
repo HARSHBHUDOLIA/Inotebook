@@ -44,7 +44,7 @@ router.post(
          res.json({success ,authtoken })
       } catch (err) {
          return res.status(400).json(err.message)
-         console.error(err)
+         
       }
       //   .then(user => res.json(user))
       //   .catch(err=>{console.log(err)
@@ -86,7 +86,7 @@ router.post("/login", [
       return res.json({success ,authtoken })
    } catch (error) {
    return  res.status(400).json("Some Internal Error Occured")
-         console.error(error)
+      
    }
 })
 //ROUTE 2: GET Looged in User Details :POST "/api/auth/getuser". login required
@@ -97,14 +97,14 @@ router.post("/getuser",fetchuser,
    if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
    }
-   const {email,password}=req.body;
+   
    try {
     let userId=req.user.id;
     let user=User.findById(userId).select("-password")
    return res.send(user)
   } catch (error) {
    return res.status(400).json("Some Internal Error Occured")
-    console.error(error)
+    
   }
 })
 
